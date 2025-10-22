@@ -45,14 +45,17 @@ def normalize_depth_data(depth_np):
     return depth_normalized    
 
 def record_values(zed, runtime_params, output):
+    print("Inside record values")
     # Creating data containers
     image = sl.Mat()
     depth = sl.Mat()
     cam_pose = sl.Pose()
     point_cloud = sl.Mat()
+    fused_pcd = o3d.geometry.PointCloud()
 
     i = 0
     while i < 10:
+        print(f"I is: {i}")
         # Can grab new keyframe
         if zed.grab(runtime_params) == sl.ERROR_CODE.SUCCESS:
             zed.retrieve_image(image, sl.VIEW.LEFT)
