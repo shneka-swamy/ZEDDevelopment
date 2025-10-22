@@ -38,11 +38,12 @@ def initialize_camera():
 
 def normalize_depth_data(depth_np):
     depth_np = np.nan_to_num(depth_np, nan=0.0, posinf=0.0, neginf=0.0)
-    depth_min = 0.5
-    depth_max = 10
-    depth_clipped = np.clip(depth_np, depth_min, depth_max)
-    depth_normalized = (255 * (1 - (depth_clipped - depth_min) / (depth_max - depth_min))).astype(np.uint8)
-    return depth_normalized    
+    valid = np.isfinite(depth_np) & (depth_np > 0)
+    vmin, vmax = np.percentile(depth_np[valid], (2, 98))
+    depth_norm = np.zeros_like(depth_np, dtype=np.uint8)
+    depth_norm[valid] = (255 * (1 - (np.clip(depth_np[valid], vmin, vmax) - vmin) / (vmax - vmin))).astype(np.uint8)
+
+    return depth_norm   
 
 def record_values(zed, runtime_params, output):
     print("Inside record values")
