@@ -37,7 +37,7 @@ def initialize_camera():
     return zed, runtime_params
 
 def normalize_depth_data(depth_np):
-    depth_np == np.nan_to_num(depth_np, nan=0.0, posinf=0.0, neginf=0.0)
+    depth_np = np.nan_to_num(depth_np, nan=0.0, posinf=0.0, neginf=0.0)
     depth_min = 0.5
     depth_max = 10
     depth_clipped = np.clip(depth_np, depth_min, depth_max)
