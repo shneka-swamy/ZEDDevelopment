@@ -49,9 +49,22 @@ def normalize_depth_data(depth_np):
 
     return depth_norm   
 
+import os
+import numpy as np
+import open3d as o3d
+import cv2
+from scipy.spatial.transform import Rotation as R
+import pyzed.sl as sl
+
 def record_values(zed, runtime_params, output):
     print("Inside record values")
-    # Creating data containers
+
+    # Make sure output dirs exist
+    os.makedirs(os.path.join(output, "Image"), exist_ok=True)
+    os.makedirs(os.path.join(output, "Depth"), exist_ok=True)
+    os.makedirs(os.path.join(output, "PointCloud"), exist_ok=True)
+
+    # Data containers
     image = sl.Mat()
     depth = sl.Mat()
     cam_pose = sl.Pose()
@@ -61,48 +74,69 @@ def record_values(zed, runtime_params, output):
     i = 0
     while i < 10:
         print(f"I is: {i}")
-        # Can grab new keyframe
-        if zed.grab(runtime_params) == sl.ERROR_CODE.SUCCESS:
-            zed.retrieve_image(image, sl.VIEW.LEFT)
-            zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
-            zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
+        if zed.grab(runtime_params) != sl.ERROR_CODE.SUCCESS:
+            continue
 
-            # Convert to numpy array
-            image_np = image.get_data()
-            depth_np  = depth.get_data()
-            depth_normalized = normalize_depth_data(depth_np)
+        # Retrieve frame data
+        zed.retrieve_image(image, sl.VIEW.LEFT)
+        zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
+        zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
-            point_cloud_np = point_cloud.get_data()
-            point_cloud_val = point_cloud_np[..., :3]
-            mask = np.isfinite(point_cloud_val).all(-1)
-            pts = point_cloud_val[mask]
+        # Convert to numpy
+        image_np = image.get_data()
+        depth_np  = depth.get_data()
+        depth_normalized = normalize_depth_data(depth_np)
 
-            cv2.imwrite(f'{output}Image/image_{i}.png', image_np)
-            cv2.imwrite(f'{output}Depth/depth_{i}.png', depth_normalized)
-            if point_cloud.write(f'{output}PointCloud/point_cloud_{i}.ply') != sl.ERROR_CODE.SUCCESS:
-                print("Error writing point cloud data")
-                exit()
-        track_status = zed.get_position(cam_pose, sl.REFERENCE_FRAME.WORLD)
-        if track_status == sl.POSITIONAL_TRACKING_STATE.OK:
-            T_wc = np.array(cam_pose.get_matrix())
-            pts_h = np.hstack([pts, np.ones((pts.shape[0], 1))])
+        pc_np = point_cloud.get_data()           # HxWx4 (X,Y,Z, A)
+        pts_cam = pc_np[..., :3]
+        mask = np.isfinite(pts_cam).all(-1)
+        pts = pts_cam[mask].astype(np.float32)   # Nx3
+
+        # Save per-frame artifacts (optional)
+        cv2.imwrite(os.path.join(output, "Image", f"image_{i}.png"), image_np)
+        cv2.imwrite(os.path.join(output, "Depth", f"depth_{i}.png"), depth_normalized)
+        if point_cloud.write(os.path.join(output, "PointCloud", f"point_cloud_{i}.ply")) != sl.ERROR_CODE.SUCCESS:
+            print("Error writing point cloud data")
+            break
+
+        # --- Get pose and fuse ---
+        state = zed.get_position(cam_pose, sl.REFERENCE_FRAME.WORLD)
+        if state == sl.POSITIONAL_TRACKING_STATE.OK and pts.size > 0:
+            # Build 4x4 T from translation + quaternion
+            t_sl = cam_pose.get_translation(sl.Translation())  # sl.Translation
+            tx, ty, tz = t_sl.get()                            # tuple of 3 floats
+
+            qx, qy, qz, qw = cam_pose.get_orientation().get()  # (x,y,z,w)
+            R_wc = R.from_quat([qx, qy, qz, qw]).as_matrix().astype(np.float32)
+
+            T_wc = np.eye(4, dtype=np.float32)
+            T_wc[:3, :3] = R_wc
+            T_wc[:3,  3] = np.array([tx, ty, tz], dtype=np.float32)
+
+            # Transform points to world
+            pts_h = np.hstack([pts, np.ones((pts.shape[0], 1), dtype=np.float32)])
             pts_world = (T_wc @ pts_h.T).T[:, :3]
 
+            # Accumulate (with light downsample)
             pcd = o3d.geometry.PointCloud()
             pcd.points = o3d.utility.Vector3dVector(pts_world)
             fused_pcd += pcd.voxel_down_sample(0.02)
+
             num_points = np.asarray(fused_pcd.points).shape[0]
             print(f"Total points in fused cloud: {num_points}")
-
+        else:
+            print("Tracking not OK this frame:", state)
 
         i += 1
-    print("Stored 10 images and depth files -- Closing zed")
-    
-    o3d.io.write_point_cloud(f'{output}PointCloud/fused_point_cloud.ply', fused_pcd)
-    print("Saved fused point cloud as fused_point_cloud.ply")
+
+    # Save fused cloud
+    fused_path = os.path.join(output, "PointCloud", "fused_point_cloud.ply")
+    o3d.io.write_point_cloud(fused_path, fused_pcd)
+    print(f"Saved fused point cloud as {fused_path}")
 
     zed.close()
     print("Camera closed successfully")
+
 
 def main():
     args = argparser()
