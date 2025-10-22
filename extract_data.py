@@ -25,7 +25,9 @@ def initialize_camera():
     init_params.depth_maximum_distance = 700
 
     pos_params = sl.PositionalTrackingParameters()
-    zed.enable_positional_tracking(pos_params)
+    err = zed.enable_positional_tracking(pos_params)
+    if err != sl.ERROR_CODE.SUCCESS:
+        raise RuntimeError(f"enable_positional_tracking failed: {err}")
     
     status = zed.open(init_params)
     if status != sl.ERROR_CODE.SUCCESS:
