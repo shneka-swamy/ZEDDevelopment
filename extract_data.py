@@ -87,6 +87,8 @@ def record_values(zed, runtime_params, output):
             pcd = o3d.geometry.PointCloud()
             pcd.points = o3d.utility.Vector3dVector(pts_world)
             fused_pcd += pcd.voxel_down_sample(0.02)
+            num_points = np.asarray(fused_pcd.points).shape[0]
+            print(f"Total points in fused cloud: {num_points}")
 
 
         i += 1
