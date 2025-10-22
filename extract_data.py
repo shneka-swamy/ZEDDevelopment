@@ -20,7 +20,7 @@ def initialize_camera():
 
     init_params = sl.InitParameters(input_t = input_type, svo_real_time_mode=True)
     init_params.camera_resolution = sl.RESOLUTION.HD720
-    init_params.depth_mode = sl.DEPTH_MODE.ULTRA
+    init_params.depth_mode = sl.DEPTH_MODE.NEURAL
     # Minimum depth information is at 120 mm in zed camera -- hence cannot be used
     init_params.depth_maximum_distance = 700
 
