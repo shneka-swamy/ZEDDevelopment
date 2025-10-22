@@ -87,6 +87,10 @@ def record_values(zed, runtime_params, output):
 
         i += 1
     print("Stored 10 images and depth files -- Closing zed")
+    
+    o3d.io.write_point_cloud(f'{output}PointCloud/fused_point_cloud.ply', fused_pcd)
+    print("Saved fused point cloud as fused_point_cloud.ply")
+
     zed.close()
     print("Camera closed successfully")
 
