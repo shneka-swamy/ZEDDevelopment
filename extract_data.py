@@ -84,7 +84,7 @@ def record_values(zed, runtime_params, output):
                 exit()
         track_status = zed.get_position(cam_pose, sl.REFERENCE_FRAME.WORLD)
         if track_status == sl.POSITIONAL_TRACKING_STATE.OK:
-            T_wc = np.array(cam_pose.get_matrix)
+            T_wc = np.array(cam_pose.get_matrix())
             pts_h = np.hstack([pts, np.ones((pts.shape[0], 1))])
             pts_world = (T_wc @ pts_h.T).T[:, :3]
 
