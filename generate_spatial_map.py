@@ -52,7 +52,10 @@ def initialize_spatial_mapping(zed, map_resolution, map_range, map_type):
 
     # Map range 
     if map_range == 'Near':
-        mapping_params.range_meter = mapping_params.get_range_preset(sl.MAPPING_RANGE.NEAR)
+        try:
+            mapping_params.range_meter = mapping_params.get_range_preset(sl.MAPPING_RANGE.NEAR)
+        except AttributeError:
+            mapping_params.range_meter = 3.0
     elif map_range == 'Medium':
         mapping_params.range_meter = mapping_params.get_range_preset(sl.MAPPING_RANGE.MEDIUM)
     else:
