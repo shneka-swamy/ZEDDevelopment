@@ -17,11 +17,33 @@ def display_point_cloud(file):
         left=50, top=50
     )
 
+def display_obj_file(file):
+    mesh = o3d.io.read_triangle_mesh(file)
+    
+    if not mesh.has_vertices():
+        print("Error: OBJ file could not be loaded or has no vertices.")
+        return
+
+    print(mesh)
+    mesh.compute_vertex_normals()
+    o3d.visualization.draw_geometries(
+        [mesh],
+        window_name="Open3D Mesh Viewer",
+        width=1280, height=720,
+        left=50, top=50,
+        mesh_show_back_face=True
+    )
+
+
 def main():
     args = argparser()
-    files = glob.glob(f"{args.input_folder}/fused_point_cloud.ply")
+    #files = glob.glob(f"{args.input_folder}/fused_point_cloud.ply")
+    files = glob.glob(f"{args.input_folder}/Mesh_full.obj")
     for file in files:
-        display_point_cloud(file)
+        display_obj_file(file)
+
+    # for file in files:
+    #     display_point_cloud(file)
 
 if __name__ == '__main__':
     main()

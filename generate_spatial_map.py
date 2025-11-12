@@ -77,7 +77,7 @@ def develop_mesh(zed, output_dir):
     print("Developing Mesh")
     mesh = sl.Mesh()
     timer = 0
-    while timer < 30:
+    while timer < 500:
         if zed.grab() == sl.ERROR_CODE.SUCCESS:
             timer += 1
         else:
