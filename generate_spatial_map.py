@@ -99,7 +99,7 @@ def develop_point_cloud(zed, output_dir, map_resolution, map_range):
 
 def main():
     args = argparser()
-    output_dir = f"{args.output_dir}Mesh/"
+    output_dir = f"{args.output_dir}FusedData/"
 
 
     zed = initialize_camera()
