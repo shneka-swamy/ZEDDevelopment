@@ -95,7 +95,7 @@ def develop_point_cloud(zed, output_dir):
         else:
             raise RuntimeError(f"grab failed")
     zed.extract_whole_spatial_map(point_cloud)
-    point_cloud.save(f"{output_dir}PointCloud_full.ply", sl::MESH_FILE_FORMAT::PLY)
+    point_cloud.save(f"{output_dir}PointCloud_full.ply", sl.MESH_FILE_FORMAT.PLY)
 
 def main():
     args = argparser()
