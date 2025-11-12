@@ -107,9 +107,9 @@ def main():
     initialize_spatial_mapping(zed, args.map_resolution, args.map_range, args.map_type)
 
     if args.map_type == 'Mesh':
-        develop_mesh(zed, output_dir)
+        develop_mesh(zed, output_dir, args.map_resolution, args.map_range)
     else:
-        develop_point_cloud(zed, output_dir)
+        develop_point_cloud(zed, output_dir, args.map_resolution, args.map_range)
         
     zed.disable_spatial_mapping()
     zed.disable_positional_tracking()
