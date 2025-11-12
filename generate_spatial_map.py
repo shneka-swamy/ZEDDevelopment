@@ -69,7 +69,7 @@ def initialize_spatial_mapping(zed, map_resolution, map_range, map_type):
     if err != sl.ERROR_CODE.SUCCESS:
         raise RuntimeError(f"enable spatial mapping failed: {err}")
 
-def develop_mesh(zed):
+def develop_mesh(zed, output_dir):
     mesh = sl.Mesh()
     timer = 0
     while timer < 30:
@@ -77,7 +77,7 @@ def develop_mesh(zed):
             timer += 1
     zed.extract_whole_spatial_map(mesh)
     mesh.apply_texture()
-    mesh.save("Mesh_full.obj")
+    mesh.save(f"{output_dir}Mesh_full.obj")
 
 # To be implemented
 def develop_point_cloud(zed):
@@ -85,12 +85,15 @@ def develop_point_cloud(zed):
 
 def main():
     args = argparser()
+    output_dir = f"{args.output_dir}Mesh/"
+
+
     zed = initialize_camera()
     initialize_tracking()
     initialize_spatial_mapping(zed, args.map_resolution, args.map_range, args.map_type)
 
     if args.map_type == 'Mesh':
-        develop_mesh(zed)
+        develop_mesh(zed, output_dir)
     else:
         print("To be implemented")
         exit()
