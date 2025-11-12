@@ -30,8 +30,8 @@ def initialize_camera():
 
 # Run the tracking module
 def initialize_tracking(zed):
-    tracking_param = sl.TrackingParameters()
-    err = zed.enable_tracking(tracking_param)
+    tracking_param = sl.PositionalTrackingParameters()
+    err = zed.enable_positional_tracking(tracking_param)
     if err != sl.ERROR_CODE.SUCCESS:
         raise RuntimeError(f"enable tracking failed: {err}")
 
