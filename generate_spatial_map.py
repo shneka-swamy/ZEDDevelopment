@@ -73,7 +73,7 @@ def initialize_spatial_mapping(zed, map_resolution, map_range, map_type):
     if err != sl.ERROR_CODE.SUCCESS:
         raise RuntimeError(f"enable spatial mapping failed: {err}")
 
-def develop_mesh(zed, output_dir):
+def develop_mesh(zed, output_dir, map_resolution, map_range):
     print("Developing Mesh")
     mesh = sl.Mesh()
     timer = 0
@@ -83,9 +83,9 @@ def develop_mesh(zed, output_dir):
         else:
             raise RuntimeError(f"grab failed")
     zed.extract_whole_spatial_map(mesh)
-    mesh.save(f"{output_dir}Mesh_full.obj")
+    mesh.save(f"{output_dir}Mesh_{map_resolution}_{map_range}.obj")
 
-def develop_point_cloud(zed, output_dir):
+def develop_point_cloud(zed, output_dir, map_resolution, map_range):
     print("Developing Point cloud")
     point_cloud = sl.FusedPointCloud()
     timer = 0
@@ -95,7 +95,7 @@ def develop_point_cloud(zed, output_dir):
         else:
             raise RuntimeError(f"grab failed")
     zed.extract_whole_spatial_map(point_cloud)
-    point_cloud.save(f"{output_dir}PointCloud_full.ply", sl.MESH_FILE_FORMAT.PLY)
+    point_cloud.save(f"{output_dir}PointCloud_{map_resolution}_{map_range}.ply", sl.MESH_FILE_FORMAT.PLY)
 
 def main():
     args = argparser()
