@@ -84,11 +84,11 @@ def develop_mesh(zed, output_dir):
             raise RuntimeError(f"grab failed")
     zed.extract_whole_spatial_map(mesh)
     print("Extracted the mesh")
-    mesh.apply_texture()
+    #mesh.apply_texture()
     print("Applied texture")
     mesh.save(f"{output_dir}Mesh_full.obj")
     print("Saved the mesh diagram")
-    
+
 # To be implemented
 def develop_point_cloud(zed):
     pass
