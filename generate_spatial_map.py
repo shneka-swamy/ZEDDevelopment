@@ -89,7 +89,7 @@ def main():
 
 
     zed = initialize_camera()
-    initialize_tracking()
+    initialize_tracking(zed)
     initialize_spatial_mapping(zed, args.map_resolution, args.map_range, args.map_type)
 
     if args.map_type == 'Mesh':
