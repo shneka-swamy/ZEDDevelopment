@@ -56,7 +56,10 @@ def initialize_spatial_mapping(zed, map_resolution, map_range, map_type):
         mapping_params.range_meter = mapping_params.get_range_preset(sl.MAPPING_RANGE.MEDIUM)
     else:
         assert map_range == 'Far', "Resolution can be Near, Medium, Far others are not implemented"
-        mapping_params.range_meter = mapping_params.get_range_preset(sl.MAPPING_RANGE.FAR)
+        try:
+            mapping_params.range_meter = mapping_params.get_range_preset(sl.MAPPING_RANGE.FAR)
+        except AttributeError:
+            mapping_params.range_meter = 10.0
 
     # Map type
     if map_type == 'Mesh':
