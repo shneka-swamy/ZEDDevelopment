@@ -105,8 +105,11 @@ def main():
         print("To be implemented")
         exit()
 
+    print("Finished mesh development")
     zed.disable_spatial_mapping()
+    print("Disabled spatial mapping")
     zed.disable_positional_tracking()
+    print("Disabled positional tracking")
     zed.close()
 
 if __name__ == '__main__':
