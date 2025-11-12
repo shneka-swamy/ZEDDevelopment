@@ -38,12 +38,12 @@ def display_obj_file(file):
 def main():
     args = argparser()
     #files = glob.glob(f"{args.input_folder}/fused_point_cloud.ply")
-    files = glob.glob(f"{args.input_folder}/Mesh_full.obj")
-    for file in files:
-        display_obj_file(file)
-
+    files = glob.glob(f"{args.input_folder}/PointCloud_full.ply")
     # for file in files:
-    #     display_point_cloud(file)
+    #     display_obj_file(file)
+
+    for file in files:
+        display_point_cloud(file)
 
 if __name__ == '__main__':
     main()
