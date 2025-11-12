@@ -80,6 +80,8 @@ def develop_mesh(zed, output_dir):
     while timer < 30:
         if zed.grab() == sl.ERROR_CODE.SUCCESS:
             timer += 1
+        else:
+            raise RuntimeError(f"grab failed")
     zed.extract_whole_spatial_map(mesh)
     mesh.apply_texture()
     mesh.save(f"{output_dir}Mesh_full.obj")
