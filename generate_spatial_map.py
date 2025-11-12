@@ -6,7 +6,7 @@ def argparser():
     parser = argparse.ArgumentParser("Get the spatial map of the environment")
     parser.add_argument('--output_dir', help="Path to the output folder")
     parser.add_argument('--map_range', help="Specify the resolution [Near, Medium, Far] of the map required", default='Far')
-    parser.add_argument('--map_type', help="Choose the type of map [mesh, point cloud] to be used", default='Mesh')
+    parser.add_argument('--map_type', help="Choose the type of map [Mesh, Point_cloud] to be used", default='Mesh')
     parser.add_argument('--map_resolution', help="Specify map resolution [Low, medium, High]", default='Low')
     return parser.parse_args()
 
@@ -86,7 +86,7 @@ def develop_mesh(zed, output_dir):
     mesh.save(f"{output_dir}Mesh_full.obj")
 
 def develop_point_cloud(zed, output_dir):
-    print("DEveloping Point cloud")
+    print("Developing Point cloud")
     point_cloud = sl.FusedPointCloud()
     timer = 0
     while timer < 500:
