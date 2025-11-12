@@ -83,15 +83,19 @@ def develop_mesh(zed, output_dir):
         else:
             raise RuntimeError(f"grab failed")
     zed.extract_whole_spatial_map(mesh)
-    print("Extracted the mesh")
-    #mesh.apply_texture()
-    print("Applied texture")
     mesh.save(f"{output_dir}Mesh_full.obj")
-    print("Saved the mesh diagram")
 
-# To be implemented
-def develop_point_cloud(zed):
-    pass
+def develop_point_cloud(zed, output_dir):
+    print("DEveloping Point cloud")
+    point_cloud = sl.FusedPointCloud()
+    timer = 0
+    while timer < 500:
+        if zed.grab() == sl.ERROR_CODE.SUCCESS:
+            timer += 1
+        else:
+            raise RuntimeError(f"grab failed")
+    zed.extract_whole_spatial_map(point_cloud)
+    point_cloud.write(f"{output_dir}PointCloud_full.ply")
 
 def main():
     args = argparser()
@@ -105,14 +109,10 @@ def main():
     if args.map_type == 'Mesh':
         develop_mesh(zed, output_dir)
     else:
-        print("To be implemented")
-        exit()
-
-    print("Finished mesh development")
+        develop_point_cloud(zed, output_dir)
+        
     zed.disable_spatial_mapping()
-    print("Disabled spatial mapping")
     zed.disable_positional_tracking()
-    print("Disabled positional tracking")
     zed.close()
 
 if __name__ == '__main__':
