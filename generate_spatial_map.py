@@ -74,6 +74,7 @@ def initialize_spatial_mapping(zed, map_resolution, map_range, map_type):
         raise RuntimeError(f"enable spatial mapping failed: {err}")
 
 def develop_mesh(zed, output_dir):
+    print("Developing Mesh")
     mesh = sl.Mesh()
     timer = 0
     while timer < 30:
@@ -103,7 +104,7 @@ def main():
         exit()
 
     zed.disable_spatial_mapping()
-    zed.disable_tracking()
+    zed.disable_positional_tracking()
     zed.close()
 
 if __name__ == '__main__':
