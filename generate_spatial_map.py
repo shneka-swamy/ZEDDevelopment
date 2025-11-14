@@ -1,3 +1,6 @@
+# This code is inspired from the spatial mapping docs of stereo labs
+# Extracts continuous map of the environment.
+
 import pyzed.sl as sl
 import argparse
 from pathlib import Path
@@ -35,7 +38,6 @@ def initialize_tracking(zed):
     err = zed.enable_positional_tracking(tracking_param)
     if err != sl.ERROR_CODE.SUCCESS:
         raise RuntimeError(f"enable tracking failed: {err}")
-
 
 # Run the spatial mapping for the camera
 def initialize_spatial_mapping(zed, map_resolution, map_range, map_type):

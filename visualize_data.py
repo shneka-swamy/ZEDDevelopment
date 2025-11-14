@@ -1,3 +1,5 @@
+# Displays the extracted OBJ and PLY files using Open3D
+
 import argparse
 import open3d as o3d
 import glob
@@ -34,16 +36,17 @@ def display_obj_file(file):
         mesh_show_back_face=True
     )
 
-
 def main():
     args = argparser()
     #files = glob.glob(f"{args.input_folder}/fused_point_cloud.ply")
-    files = glob.glob(f"{args.input_folder}/PointCloud_full.ply")
-    # for file in files:
-    #     display_obj_file(file)
-
+    files = glob.glob(f"{args.input_folder}/*.obj")
     for file in files:
-        display_point_cloud(file)
+        print(f"Showing mesh files {file}")
+        display_obj_file(file)
+
+    # for file in files:
+    #     print(f"Showing point cloud {file}")
+    #     display_point_cloud(file)
 
 if __name__ == '__main__':
     main()

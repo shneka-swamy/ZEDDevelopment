@@ -1,4 +1,5 @@
 # This code is inspired from streo labs -- zed-yolo
+# Extracts RGB image, depth image, tracking pose data.
 
 import pyzed.sl as sl
 import cv2
@@ -6,6 +7,8 @@ import numpy as np
 import argparse
 import open3d as o3d
 from pathlib import Path
+import os
+from scipy.spatial.transform import Rotation as R
 
 def argparser():
     parser = argparse.ArgumentParser("Extract images and point cloud in required format")
@@ -33,8 +36,6 @@ def initialize_camera():
     err = zed.enable_positional_tracking(pos_params)
     if err != sl.ERROR_CODE.SUCCESS:
         raise RuntimeError(f"enable_positional_tracking failed: {err}")
-    
-
 
     print("Initializing Camera... DONE")
 
@@ -48,13 +49,6 @@ def normalize_depth_data(depth_np):
     depth_norm[valid] = (255 * (1 - (np.clip(depth_np[valid], vmin, vmax) - vmin) / (vmax - vmin))).astype(np.uint8)
 
     return depth_norm   
-
-import os
-import numpy as np
-import open3d as o3d
-import cv2
-from scipy.spatial.transform import Rotation as R
-import pyzed.sl as sl
 
 def record_values(zed, runtime_params, output):
     print("Inside record values")
@@ -87,26 +81,25 @@ def record_values(zed, runtime_params, output):
         depth_np  = depth.get_data()
         depth_normalized = normalize_depth_data(depth_np)
 
-        pc_np = point_cloud.get_data()           # HxWx4 (X,Y,Z, A)
+        pc_np = point_cloud.get_data()          
         pts_cam = pc_np[..., :3]
         mask = np.isfinite(pts_cam).all(-1)
         pts = pts_cam[mask].astype(np.float32)   # Nx3
 
-        # Save per-frame artifacts (optional)
+        # Save per-frame artifacts 
         cv2.imwrite(os.path.join(output, "Image", f"image_{i}.png"), image_np)
         cv2.imwrite(os.path.join(output, "Depth", f"depth_{i}.png"), depth_normalized)
         if point_cloud.write(os.path.join(output, "PointCloud", f"point_cloud_{i}.ply")) != sl.ERROR_CODE.SUCCESS:
             print("Error writing point cloud data")
             break
 
-        # --- Get pose and fuse ---
         state = zed.get_position(cam_pose, sl.REFERENCE_FRAME.WORLD)
         if state == sl.POSITIONAL_TRACKING_STATE.OK and pts.size > 0:
             # Build 4x4 T from translation + quaternion
-            t_sl = cam_pose.get_translation(sl.Translation())  # sl.Translation
-            tx, ty, tz = t_sl.get()                            # tuple of 3 floats
+            t_sl = cam_pose.get_translation(sl.Translation()) 
+            tx, ty, tz = t_sl.get()                           
 
-            qx, qy, qz, qw = cam_pose.get_orientation().get()  # (x,y,z,w)
+            qx, qy, qz, qw = cam_pose.get_orientation().get()
             R_wc = R.from_quat([qx, qy, qz, qw]).as_matrix().astype(np.float32)
 
             T_wc = np.eye(4, dtype=np.float32)
